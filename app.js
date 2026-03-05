@@ -12,13 +12,16 @@ mongoose.connect(process.env.DATABASE_URL)
     .catch(err => console.error(err));
 
 const indexRouter = require("./routes/index");
-const AuthRoutes = require("./routes/auth");
+const authRouter = require("./routes/auth");
+const usersRouter = require("./routes/users");
 const postsRouter = require("./routes/posts");
+
 
 app.use(express.json());
 
 app.use("/api", indexRouter);
-app.use("/api/auth", AuthRoutes);
+app.use("/api/auth", authRouter);
+app.use("/api/users", usersRouter);
 app.use("/api/posts", postsRouter);
 
 
