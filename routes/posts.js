@@ -92,16 +92,19 @@ router.patch("/:id/edit", authService.verifyToken, async (req, res) => {
             });
         }
 
-        if (post._userId !== req.userId) {
+        if (post._userId.toString() !== req.userId) {
             return res.status(403).json({
                 error: {
-                    code: "UNAUTHORIZED_MODIFY_RESSOURCE",
-                    message: "Unauthorized modifying post",
+                    code: "NOT_RESSOURCE_OWNER",
+                    message: "You can not modify this post",
                 },
             });
         }
 
-        post = await Post.findByIdAndUpdate(id, req.body);
+        post = await Post.findByIdAndUpdate(id, req.body, {
+            runValidators: true,
+            returnDocument: "after",
+        });
 
         return res.status(201).json({
             success: true,
