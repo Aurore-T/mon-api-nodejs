@@ -96,7 +96,7 @@ router.post("/login", async(req, res) => {
             },
         });
 
-    } catch (_err) {
+    } catch (err) {
         return res.status(500).json({
             error: {
                 code: "INTERNAL_SERVER_ERROR",
