@@ -1,5 +1,5 @@
 const mongoose = require("mongoose");
-const {Schema} = require("mongoose");
+const { Schema } = require("mongoose");
 
 const postSchema = new mongoose.Schema({
     title: {
@@ -14,6 +14,7 @@ const postSchema = new mongoose.Schema({
     },
     status: {
         type: String,
+        enum: ["Publish", "Draft", "Lock", "Delete"],
         required: [true, "Status is required"],
     },
     _userId: {

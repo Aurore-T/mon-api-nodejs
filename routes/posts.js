@@ -1,5 +1,6 @@
 const express = require("express");
 const router = express.Router();
+const sanitizeHtml = require("sanitize-html");
 
 const authService = require("../middlewares/authService");
 const Post = require("../models/Post");
@@ -12,8 +13,12 @@ router.get("/", async (req, res) => {
 
     try {
         const [posts, count] = await Promise.all([
-            Post.find()
+            Post.find({ status: "Publish" })
                 .sort({ "createdAt": -1 })
+                .populate({
+                    path: "_userId",
+                    select: "username",
+                })
                 .skip(offset)
                 .limit(size)
                 .lean() // plus performant si pas besoin des méthodes mongoose pour nos objets
@@ -38,10 +43,20 @@ router.get("/", async (req, res) => {
 });
 
 router.post("/new", authService.verifyToken, async (req, res) => {
-    const {title, content, status} = req.body;
+    const { title, content, status } = req.body;
 
     try {
-        const post = Post({title, content, status});
+        const clean = sanitizeHtml(content, {
+            allowedTags: sanitizeHtml.defaults.allowedTags.concat([
+                "img", "h1", "h2", "h3", "pre", "code",
+            ]),
+            allowedAttributes: {
+                a: ["href", "name", "target"],
+                img: ["src", "alt"],
+            },
+        });
+
+        const post = Post({ title, content: clean, status });
         await post.validate();
 
         post._userId = req.userId;
@@ -82,10 +97,9 @@ router.get("/:id", async (req, res) => {
     const { id } = req.params;
 
     try {
-        const post = await Post.findById(id);
-
-        const comments = await Comment.find({
-            _postId: post._id,
+        const post = await Post.findById(id).populate({
+            path: "_userId",
+            select: "username",
         });
 
         if (!post) {
@@ -96,6 +110,13 @@ router.get("/:id", async (req, res) => {
                 },
             });
         }
+
+        const comments = await Comment.find({ _postId: post._id })
+            .sort({ "createdAt": -1 })
+            .populate({
+                path: "_userId",
+                select: "username",
+            });
 
         return res.status(200).json({
             post: post,
@@ -138,12 +159,24 @@ router.patch("/:id", authService.verifyToken, async (req, res) => {
             });
         }
 
+        if (req.body && req.body.content) {
+            req.body.content = sanitizeHtml(req.body.content, {
+                allowedTags: sanitizeHtml.defaults.allowedTags.concat([
+                    "img", "h1", "h2", "h3", "pre", "code",
+                ]),
+                allowedAttributes: {
+                    a: ["href", "name", "target"],
+                    img: ["src", "alt"],
+                },
+            });
+        }
+
         post = await Post.findByIdAndUpdate(id, req.body, {
             runValidators: true,
             returnDocument: "after",
         });
 
-        return res.status(201).json({
+        return res.status(200).json({
             success: true,
             message: "Post updated successfully",
             post: post,
@@ -176,7 +209,7 @@ router.patch("/:id", authService.verifyToken, async (req, res) => {
 });
 
 router.delete("/:id", authService.verifyToken, async (req, res) => {
-    const {id} = req.params;
+    const { id } = req.params;
 
     try {
         const post = await Post.findById(id);

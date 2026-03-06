@@ -1,4 +1,4 @@
-require('dotenv').config();
+require("dotenv").config();
 const express = require("express");
 const router = express.Router();
 const bcrypt = require("bcrypt");
@@ -89,6 +89,11 @@ router.post("/login", async(req, res) => {
             success: true,
             message: "Login successfully",
             accessToken: accessToken,
+            user: {
+                _id: user._id,
+                username: user.username,
+                email: user.email,
+            },
         });
 
     } catch (_err) {
