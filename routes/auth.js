@@ -69,7 +69,7 @@ router.post("/login", async(req, res) => {
             });
         }
 
-        const match = bcrypt.compare(password, user.password);
+        const match = await bcrypt.compare(password, user.password);
         if (!match) {
             return res.status(401).json({
                 error: {
