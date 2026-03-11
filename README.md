@@ -7,9 +7,10 @@
 # Table des matières
 
 - [DOCUMENT DE SPECIFICATIONS FONCTIONNELLES][1]
-- [DOCUMENT TECHNIQUE][1]
+- [DOCUMENT TECHNIQUE][2]
 
 [1]: ./functional_documentation.md
+[2]: ./technical_documentation.md
 
 ## Description du projet
 Il s'agit d'une API REST pour la gestion centralisé d'un forum
