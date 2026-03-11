@@ -63,6 +63,25 @@ Pour commencer à utiliser l'api, vous devez dans un premier temps cloner le rep
 ```BASH
   npm install
  ```
+## Configurer
+> Prérequis :
+> 1. Créer une base de données sur [mongoDB](https://www.mongodb.com)
+> 2. Installer redis en local
+   ```BASH
+   sudo apt install redis
+   sudo apt install redis-tools
+   redis-cli
+   # Vous devriez voir s'afficher
+   127.0.0.1:6379>
+   ```
+Dans votre fichier <code>.env</code> définissez vos variables d'environnement.
+```text
+NODE_ENV=development
+PORT=4000
+DATABASE_URL=mongodb+srv://user:!password!@!dns!/?appName=!dbName!
+JWT_SECRET=cGFzc3dvcmQ
+REDIS_URL=redis://localhost:6379
+```
 
 ## Exécuter l'API
 ```BASH
